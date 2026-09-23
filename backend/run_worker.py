@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Process one queued MuseTalk v1.5 job from Google Drive with durable metadata."""
 from pathlib import Path
-import json, os, shutil, subprocess, uuid
+import json, os, shutil, subprocess, uuid, time
 from datetime import datetime, timezone
 
 ROOT=Path("/content/drive/MyDrive/Laxman AI Avatar Studio")
@@ -49,7 +49,7 @@ def validate_output(path):
             "audio_sample_rate":audio_streams[0].get("sample_rate"),
             "size_bytes":path.stat().st_size}
 
-def main():
+def process_one():
     for d in (Q,P,C,F,LOGS,OUT): d.mkdir(parents=True,exist_ok=True)
     jobs=sorted(Q.glob("*.json"))
     if not jobs:
@@ -61,6 +61,7 @@ def main():
     processing_meta=P/f"{run_id}.status.json"
     started=now()
 
+    cfg=None
     try:
         data=json.loads(job.read_text(encoding="utf-8"))
         if data.get("schema_version")!=1:
@@ -168,6 +169,23 @@ def main():
             "job_path":str(failed)
         })
         raise
+
+def main():
+    import argparse
+    parser=argparse.ArgumentParser(description="Laxman AI Avatar Studio MuseTalk worker")
+    parser.add_argument("--loop",action="store_true",help="Keep watching Drive queue for new jobs")
+    parser.add_argument("--poll-seconds",type=int,default=10,help="Queue polling interval")
+    args=parser.parse_args()
+    if not args.loop:
+        process_one()
+        return
+    print("WORKER_LOOP_STARTED poll_seconds=",args.poll_seconds)
+    while True:
+        try:
+            process_one()
+        except Exception as e:
+            print("JOB_ERROR",repr(e))
+        time.sleep(max(2,args.poll_seconds))
 
 if __name__=="__main__":
     main()
