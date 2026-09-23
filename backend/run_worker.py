@@ -22,6 +22,33 @@ def move(src,dst):
 def write_json(path,data):
     path.write_text(json.dumps(data,indent=2,ensure_ascii=False),encoding="utf-8")
 
+def probe(path):
+    cmd=["ffprobe","-v","error","-show_entries","format=duration:stream=index,codec_type,width,height,r_frame_rate,avg_frame_rate,sample_rate,channels","-of","json",str(path)]
+    r=subprocess.run(cmd,capture_output=True,text=True,check=True)
+    return json.loads(r.stdout)
+
+def validate_output(path):
+    if not path.exists() or path.stat().st_size < 1024:
+        raise RuntimeError("Generated MP4 is missing or empty.")
+    info=probe(path)
+    streams=info.get("streams",[])
+    video=[s for s in streams if s.get("codec_type")=="video"]
+    audio_streams=[s for s in streams if s.get("codec_type")=="audio"]
+    if not video:
+        raise RuntimeError("Generated file has no video stream.")
+    if not audio_streams:
+        raise RuntimeError("Generated file has no audio stream.")
+    duration=float(info.get("format",{}).get("duration") or 0)
+    if duration <= 0:
+        raise RuntimeError("Generated file has invalid duration.")
+    v=video[0]
+    if not v.get("width") or not v.get("height"):
+        raise RuntimeError("Generated video has invalid dimensions.")
+    return {"duration_seconds":duration,"width":v["width"],"height":v["height"],
+            "video_codec":v.get("codec_name"),"audio_codec":audio_streams[0].get("codec_name"),
+            "audio_sample_rate":audio_streams[0].get("sample_rate"),
+            "size_bytes":path.stat().st_size}
+
 def main():
     for d in (Q,P,C,F,LOGS,OUT): d.mkdir(parents=True,exist_ok=True)
     jobs=sorted(Q.glob("*.json"))
@@ -89,10 +116,23 @@ def main():
         if result.returncode!=0:
             raise RuntimeError(f"MuseTalk inference failed with exit code {result.returncode}. See {log}")
 
-        candidates=sorted(OUT.glob("*.mp4"),key=lambda p:p.stat().st_mtime,reverse=True)
+        before={p.resolve() for p in OUT.glob("*.mp4")}
+        candidates=[p for p in OUT.glob("*.mp4") if p.resolve() not in before]
+        candidates=sorted(candidates,key=lambda p:p.stat().st_mtime,reverse=True)
+        if not candidates:
+            # MuseTalk may reuse a deterministic filename; choose a recently modified file.
+            candidates=sorted(OUT.glob("*.mp4"),key=lambda p:p.stat().st_mtime,reverse=True)
         output=candidates[0] if candidates else None
         if output is None:
             raise RuntimeError("MuseTalk exited successfully but no MP4 was found in outputs/")
+
+        media=validate_output(output)
+        final_output=OUT/f"{run_id}.mp4"
+        if output.resolve()!=final_output.resolve():
+            if final_output.exists():
+                final_output.unlink()
+            output.rename(final_output)
+        output=final_output
 
         completed_job=move(job,C)
         processing_meta.unlink(missing_ok=True)
@@ -102,7 +142,8 @@ def main():
             "created_at":started,"started_at":started,"completed_at":now(),
             "avatar_id":data.get("avatar_id"),"voice_id":data.get("voice_id"),
             "output_path":str(output),"output_name":output.name,
-            "output_size_bytes":output.stat().st_size,
+            "output_size_bytes":media["size_bytes"],
+            "media":media,
             "log_path":str(log),"job_path":str(completed_job),
             "note":data.get("note","")
         })
