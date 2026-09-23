@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "voices": [
+    {
+      "id": "voice-original-laxman",
+      "name": "Laxman Original Voice",
+      "type": "original-recording",
+      "source": "Google Drive / Laxman AI Avatar Studio / voices",
+      "cloning": false,
+      "status": "ready"
+    }
+  ]
+}
