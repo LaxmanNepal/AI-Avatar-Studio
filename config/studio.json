@@ -1,0 +1,12 @@
+{
+  "studio": "Laxman AI Avatar Studio",
+  "musetalk_version": "v15",
+  "backend": "google-colab",
+  "storage": "google-drive",
+  "privacy": {
+    "github_contains_private_media": false,
+    "github_contains_model_weights": false,
+    "voice_cloning": false
+  },
+  "drive_root": "Laxman AI Avatar Studio"
+}
