@@ -1,28 +1,13 @@
-# Colab backend contract
+# Colab backend
 
-The GitHub dashboard is a static control panel. GPU inference runs in Google Colab.
+GitHub stores code/config only. Google Drive stores private avatars, the original voice, model weights, jobs, logs and generated videos.
 
-## Persistent data
+Drive queue:
+- jobs/queued
+- jobs/processing
+- jobs/completed
+- jobs/failed
 
-Google Drive:
-- Laxman AI Avatar Studio/avatars
-- Laxman AI Avatar Studio/voices
-- Laxman AI Avatar Studio/models
-- Laxman AI Avatar Studio/outputs
-- Laxman AI Avatar Studio/temp
+Open notebooks/MuseTalk-Laxman.ipynb in Colab. Bootstrap is safe to rerun after a runtime reset. Then place a version-1 JSON job in jobs/queued and run the worker cell. The worker processes one job, writes output to outputs/, and moves the job to completed or failed.
 
-## Job contract
-
-A future backend worker should accept:
-- avatar_id
-- voice_id
-- script or audio path
-- output filename
-- MuseTalk version
-
-It should return:
-- queued / processing / completed / failed
-- output Drive path
-- error message when failed
-
-Never put private media, credentials, model weights or Drive tokens into GitHub.
+Never commit face videos, voice recordings, generated videos, model weights, tokens or credentials to GitHub.
