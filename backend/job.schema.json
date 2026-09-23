@@ -1,1 +1,51 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Laxman Avatar Studio Job","type":"object","required":["schema_version","id","avatar_path","audio_path"],"properties":{"schema_version":{"const":1},"id":{"type":"string","pattern":"^[A-Za-z0-9._-]+$"},"avatar_path":{"type":"string"},"audio_path":{"type":"string"},"batch_size":{"type":"integer","minimum":1,"maximum":8,"default":4}},"additionalProperties":false}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Laxman Avatar Studio Job",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "avatar_path",
+    "audio_path"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "avatar_id": {
+      "type": "string"
+    },
+    "voice_id": {
+      "type": "string"
+    },
+    "avatar_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "audio_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "batch_size": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8,
+      "default": 4
+    },
+    "fps": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 60,
+      "default": 24
+    },
+    "note": {
+      "type": "string",
+      "maxLength": 2000
+    }
+  },
+  "additionalProperties": false
+}
