@@ -6,21 +6,30 @@
       "name": "Technical Presenter",
       "angle": "Front",
       "source": "Google Drive / Laxman AI Avatar Studio / avatars",
-      "status": "ready"
+      "source_filename": "Person_delivering_technical_expl…_20260921002946.mp4",
+      "drive_path": "temp/laxman_avatar_test.mp4",
+      "status": "ready",
+      "test_asset": true
     },
     {
       "id": "avatar-02",
       "name": "Studio Desk",
       "angle": "Alternate",
       "source": "Google Drive / Laxman AI Avatar Studio / avatars",
-      "status": "ready"
+      "source_filename": "Person_speaking_at_studio_desk_20260921002946.mp4",
+      "drive_path": "avatars/Person_speaking_at_studio_desk_20260921002946.mp4",
+      "status": "ready",
+      "test_asset": false
     },
     {
       "id": "avatar-03",
       "name": "Technology Video",
       "angle": "Alternate",
       "source": "Google Drive / Laxman AI Avatar Studio / avatars",
-      "status": "ready"
+      "source_filename": "Person_recording_technology_video_20260921002955.mp4",
+      "drive_path": "avatars/Person_recording_technology_video_20260921002955.mp4",
+      "status": "ready",
+      "test_asset": false
     }
   ]
 }
