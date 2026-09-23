@@ -1,4 +1,4 @@
-const state={avatars:[],voices:[],section:"dashboard"};
+const state={avatars:[],voices:[],jobs:[],section:"dashboard"};
 const $=(s)=>document.querySelector(s);
 const DRIVE_ROOT="/content/drive/MyDrive/Laxman AI Avatar Studio";
 
@@ -22,6 +22,7 @@ async function loadData(){
 function updateMetrics(){
   const n=$("#avatarCount"); if(n)n.textContent=state.avatars.length;
   const v=$("#voiceCount"); if(v)v.textContent=state.voices.length;
+  const j=$("#jobCount"); if(j)j.textContent=state.jobs.length;
 }
 
 function renderAvatars(){
@@ -86,6 +87,25 @@ function syncSelectedAvatar(){
   const s=$("#avatarSelect"); if(s&&id)s.value=id;
 }
 
+function saveJobs(){localStorage.setItem("laxman.avatarJobs",JSON.stringify(state.jobs));}
+function loadJobs(){
+  try{state.jobs=JSON.parse(localStorage.getItem("laxman.avatarJobs")||"[]");if(!Array.isArray(state.jobs))state.jobs=[];}catch(e){state.jobs=[]}
+  renderJobs();updateMetrics();
+}
+function renderJobs(){
+  const box=$("#jobStatus");if(!box)return;
+  if(!state.jobs.length){box.innerHTML='<div class="empty">No job metadata imported yet.</div>';return;}
+  box.innerHTML=state.jobs.map(j=>{
+    const ok=j.status==="completed";
+    const media=j.media||{};
+    return `<article class="job-row"><div><b>${escapeHtml(j.id||"Unnamed job")}</b><span class="status-badge ${ok?"success":"failed"}">${escapeHtml(j.status||"unknown")}</span><div class="muted job-meta">${j.completed_at||j.failed_at||j.started_at||""}</div></div><div class="job-details">${ok?escapeHtml(String(media.width||"?"))+"×"+escapeHtml(String(media.height||"?"))+" · "+escapeHtml(String(media.duration_seconds||"?"))+"s · "+escapeHtml(String(j.output_name||"")):escapeHtml(j.error||"See worker log")}</div></article>`;
+  }).join("");
+}
+async function importResult(file){
+  const text=await file.text();const data=JSON.parse(text);
+  if(!data.id||!data.status)throw new Error("Invalid result metadata: missing id/status.");
+  state.jobs=[data,...state.jobs.filter(x=>x.id!==data.id)].slice(0,50);saveJobs();renderJobs();updateMetrics();
+}
 function showSection(name){
   state.section=name;
   document.querySelectorAll("[data-section]").forEach(x=>x.hidden=x.dataset.section!==name);
@@ -128,8 +148,10 @@ function downloadJob(){
 document.addEventListener("DOMContentLoaded",()=>{
   document.querySelectorAll(".nav[data-target]").forEach(b=>b.onclick=()=>showSection(b.dataset.target));
   document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>showSection(b.dataset.go));
-  if($("#avatarCount"))loadData();
+  if($("#avatarCount")){loadData();loadJobs();}
   const form=$("#generateForm");
   if(form)form.onsubmit=e=>{e.preventDefault();downloadJob()};
+  const importer=$("#resultImport");
+  if(importer)importer.onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{await importResult(file);showSection("outputs")}catch(err){alert(err.message)}e.target.value=""};
   showSection("dashboard");
 });
