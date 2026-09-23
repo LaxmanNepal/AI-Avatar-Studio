@@ -6,6 +6,9 @@
       "name": "Laxman Original Voice",
       "type": "original-recording",
       "source": "Google Drive / Laxman AI Avatar Studio / voices",
+      "source_filename": "my sample.wav",
+      "drive_path": "temp/laxman_voice_musetalk.wav",
+      "original_path": "voices/my sample.wav",
       "cloning": false,
       "status": "ready"
     }
