@@ -1,1 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<title>Laxman AI Avatar Studio</title>
+<style>
+:root{--bg:#070b14;--panel:#101827;--panel2:#151e30;--text:#f4f7fb;--muted:#93a0b5;--line:#263247;--accent:#7c5cff;--accent2:#20d6a7;--warn:#f5b942}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#1b2450 0,transparent 35%),radial-gradient(circle at 100% 10%,#123b43 0,transparent 30%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button{font:inherit}.shell{display:grid;grid-template-columns:250px 1fr;min-height:100vh}.side{border-right:1px solid var(--line);padding:22px 16px;background:rgba(7,11,20,.78);backdrop-filter:blur(20px);position:sticky;top:0;height:100vh}.brand{display:flex;gap:12px;align-items:center;margin-bottom:30px}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#24b9ff);display:grid;place-items:center;font-weight:900}.brand b{display:block}.brand span{font-size:12px;color:var(--muted)}nav{display:grid;gap:7px}.nav{padding:12px 13px;border:1px solid transparent;border-radius:12px;color:#b8c2d4;background:transparent;text-align:left;cursor:pointer}.nav.active,.nav:hover{background:var(--panel2);border-color:var(--line);color:#fff}.status{position:absolute;left:16px;right:16px;bottom:20px;padding:13px;border:1px solid var(--line);border-radius:15px;background:rgba(16,24,39,.8)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-right:7px}.main{padding:28px;max-width:1500px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:25px}.eyebrow{color:#9ca9bf;font-size:13px}.top h1{font-size:30px;margin:5px 0}.pill{border:1px solid var(--line);background:rgba(16,24,39,.8);padding:10px 13px;border-radius:999px;color:#cbd4e4}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card{background:linear-gradient(180deg,rgba(21,30,48,.92),rgba(13,20,33,.92));border:1px solid var(--line);border-radius:20px;padding:19px;box-shadow:0 12px 35px rgba(0,0,0,.18)}.metric{font-size:30px;font-weight:800;margin-top:9px}.label{color:var(--muted);font-size:13px}.section{margin-top:20px}.section h2{font-size:17px;margin:0 0 12px}.wide{grid-column:span 2}.actions{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.action{padding:18px;border:1px solid var(--line);border-radius:16px;background:#111a2a;color:#fff;text-align:left;cursor:pointer}.action:hover{border-color:#5f7090;transform:translateY(-1px)}.icon{font-size:22px;margin-bottom:9px}.action small{display:block;color:var(--muted);margin-top:5px}.pipeline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.step{padding:9px 11px;border-radius:10px;background:#111a2a;border:1px solid var(--line);font-size:12px}.arrow{color:#62718a}.avatar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.avatar{height:160px;border-radius:15px;border:1px dashed #33415a;background:linear-gradient(135deg,#141e31,#0e1524);display:flex;flex-direction:column;justify-content:end;padding:14px}.avatar b{font-size:14px}.avatar span{font-size:12px;color:var(--muted);margin-top:4px}.notice{color:#d6ddec;line-height:1.55}.tag{display:inline-block;font-size:11px;padding:5px 8px;border-radius:999px;background:#19243a;color:#b9c6dc;margin:4px 4px 0 0}@media(max-width:900px){.shell{grid-template-columns:1fr}.side{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--line)}.status{position:static;margin-top:20px}.grid{grid-template-columns:repeat(2,1fr)}.wide{grid-column:span 2}}@media(max-width:600px){.main{padding:18px}.grid,.avatar-grid{grid-template-columns:1fr}.wide{grid-column:span 1}.top{align-items:flex-start}.top h1{font-size:24px}.actions{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="side">
+  <div class="brand"><div class="logo">LN</div><div><b>Laxman AI</b><span>Avatar Studio</span></div></div>
+  <nav>
+    <button class="nav active">⌂ Dashboard</button>
+    <button class="nav">◉ Avatars</button>
+    <button class="nav">🎙 Voices</button>
+    <button class="nav">🎬 Generate Video</button>
+    <button class="nav">▣ Generated Videos</button>
+    <button class="nav">☁ Colab Backend</button>
+    <button class="nav">⚙ Settings</button>
+  </nav>
+  <div class="status"><span class="dot"></span><b>Backend offline</b><div class="label" style="margin-top:5px">Colab GPU will connect here.</div></div>
+</aside>
+<main class="main">
+  <div class="top">
+    <div><div class="eyebrow">PERSONAL AI VIDEO WORKSPACE</div><h1>Avatar Studio Dashboard</h1></div>
+    <div class="pill">Local UI · Private storage</div>
+  </div>
 
+  <div class="grid">
+    <div class="card"><div class="label">Registered Avatars</div><div class="metric">3</div><div class="label">Sample angles ready</div></div>
+    <div class="card"><div class="label">Voice Profiles</div><div class="metric">1</div><div class="label">Original voice workflow</div></div>
+    <div class="card"><div class="label">Generated Videos</div><div class="metric">0</div><div class="label">Saved to Google Drive</div></div>
+    <div class="card"><div class="label">GPU Backend</div><div class="metric">—</div><div class="label">Waiting for Colab</div></div>
+
+    <div class="card wide">
+      <div class="section" style="margin-top:0"><h2>Quick Actions</h2></div>
+      <div class="actions">
+        <button class="action"><div class="icon">🎬</div><b>Create Avatar Video</b><small>Choose avatar, script and your original voice.</small></button>
+        <button class="action"><div class="icon">👤</div><b>Manage Avatars</b><small>Register your different camera angles.</small></button>
+        <button class="action"><div class="icon">☁</div><b>Start Colab Backend</b><small>Connect the temporary GPU worker.</small></button>
+        <button class="action"><div class="icon">📁</div><b>Open Output Library</b><small>View generated MP4 files stored in Drive.</small></button>
+      </div>
+    </div>
+
+    <div class="card wide">
+      <h2>Generation Pipeline</h2>
+      <div class="pipeline">
+        <div class="step">Avatar</div><div class="arrow">→</div>
+        <div class="step">Script / Audio</div><div class="arrow">→</div>
+        <div class="step">Colab GPU</div><div class="arrow">→</div>
+        <div class="step">MuseTalk 1.5</div><div class="arrow">→</div>
+        <div class="step">MP4 → Drive</div>
+      </div>
+      <p class="notice">The dashboard stays permanent in GitHub. GPU processing remains temporary in Colab. Private media and model files remain outside the repository.</p>
+      <span class="tag">GitHub</span><span class="tag">Google Drive</span><span class="tag">Google Colab</span><span class="tag">MuseTalk 1.5</span>
+    </div>
+
+    <div class="card wide">
+      <h2>Your Avatar Library</h2>
+      <div class="avatar-grid">
+        <div class="avatar"><b>Avatar 01</b><span>Technical presenter · front angle</span></div>
+        <div class="avatar"><b>Avatar 02</b><span>Studio desk · alternate angle</span></div>
+        <div class="avatar"><b>Avatar 03</b><span>Technology video · alternate angle</span></div>
+      </div>
+    </div>
+
+    <div class="card wide">
+      <h2>Storage Architecture</h2>
+      <p class="notice"><b>GitHub:</b> dashboard, code, configuration and Colab notebook.<br><b>Google Drive:</b> private avatars, original voice, MuseTalk models, temporary files and generated videos.<br><b>Colab:</b> disposable GPU runtime that performs generation.</p>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>
