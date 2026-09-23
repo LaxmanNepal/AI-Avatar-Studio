@@ -96,6 +96,8 @@ def main():
         env["PYTHONPATH"]=str(REPO)
         env["MPLBACKEND"]="Agg"
         log=LOGS/f"{run_id}.log"
+        before={p.resolve() for p in OUT.glob("*.mp4")}
+        before_mtime={p.resolve():p.stat().st_mtime for p in OUT.glob("*.mp4")}
         cmd=[
             PYTHON,"scripts/inference.py","--version","v15","--gpu_id","0",
             "--vae_type","sd-vae",
@@ -116,8 +118,7 @@ def main():
         if result.returncode!=0:
             raise RuntimeError(f"MuseTalk inference failed with exit code {result.returncode}. See {log}")
 
-        before={p.resolve() for p in OUT.glob("*.mp4")}
-        candidates=[p for p in OUT.glob("*.mp4") if p.resolve() not in before]
+        candidates=[p for p in OUT.glob("*.mp4") if p.resolve() not in before or p.stat().st_mtime > before_mtime.get(p.resolve(),0)]
         candidates=sorted(candidates,key=lambda p:p.stat().st_mtime,reverse=True)
         if not candidates:
             # MuseTalk may reuse a deterministic filename; choose a recently modified file.
