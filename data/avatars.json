@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "avatars": [
+    {
+      "id": "avatar-01",
+      "name": "Technical Presenter",
+      "angle": "Front",
+      "source": "Google Drive / Laxman AI Avatar Studio / avatars",
+      "status": "ready"
+    },
+    {
+      "id": "avatar-02",
+      "name": "Studio Desk",
+      "angle": "Alternate",
+      "source": "Google Drive / Laxman AI Avatar Studio / avatars",
+      "status": "ready"
+    },
+    {
+      "id": "avatar-03",
+      "name": "Technology Video",
+      "angle": "Alternate",
+      "source": "Google Drive / Laxman AI Avatar Studio / avatars",
+      "status": "ready"
+    }
+  ]
+}
