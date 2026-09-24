@@ -103,8 +103,11 @@ def process_one():
         env["PYTHONPATH"]=str(REPO)
         env["MPLBACKEND"]="Agg"
         log=LOGS/f"{run_id}.log"
-        before={p.resolve() for p in OUT.glob("*.mp4")}
-        before_mtime={p.resolve():p.stat().st_mtime for p in OUT.glob("*.mp4")}
+        # Isolate each inference in a private per-job result directory.
+        job_out=OUT/"_jobs"/run_id
+        if job_out.exists():
+            shutil.rmtree(job_out)
+        job_out.mkdir(parents=True,exist_ok=True)
         cmd=[
             PYTHON,"scripts/inference.py","--version","v15","--gpu_id","0",
             "--vae_type","sd-vae",
@@ -112,7 +115,7 @@ def process_one():
             "--unet_model_path",str(ROOT/"models/musetalkV15/unet.pth"),
             "--whisper_dir",str(ROOT/"models/whisper"),
             "--inference_config",str(cfg),
-            "--result_dir",str(OUT),
+            "--result_dir",str(job_out),
             "--batch_size",str(data.get("batch_size",4)),
             "--fps",str(data.get("fps",24)),
             "--use_float16"
@@ -125,14 +128,12 @@ def process_one():
         if result.returncode!=0:
             raise RuntimeError(f"MuseTalk inference failed with exit code {result.returncode}. See {log}")
 
-        candidates=[p for p in OUT.glob("*.mp4") if p.resolve() not in before or p.stat().st_mtime > before_mtime.get(p.resolve(),0)]
-        candidates=sorted(candidates,key=lambda p:p.stat().st_mtime,reverse=True)
+        candidates=sorted(job_out.glob("*.mp4"),key=lambda p:p.stat().st_mtime,reverse=True)
         if not candidates:
-            # MuseTalk may reuse a deterministic filename; choose a recently modified file.
-            candidates=sorted(OUT.glob("*.mp4"),key=lambda p:p.stat().st_mtime,reverse=True)
-        output=candidates[0] if candidates else None
-        if output is None:
-            raise RuntimeError("MuseTalk exited successfully but no MP4 was found in outputs/")
+            raise RuntimeError("MuseTalk exited successfully but produced no MP4 in the isolated job output directory.")
+        if len(candidates)>1:
+            raise RuntimeError(f"MuseTalk produced multiple MP4 files for {run_id}; refusing ambiguous output selection.")
+        output=candidates[0]
 
         media=validate_output(output)
         final_output=OUT/f"{run_id}.mp4"
@@ -141,6 +142,7 @@ def process_one():
                 final_output.unlink()
             output.rename(final_output)
         output=final_output
+        shutil.rmtree(job_out,ignore_errors=True)
 
         completed_job=move(job,C)
         processing_meta.unlink(missing_ok=True)
@@ -162,6 +164,10 @@ def process_one():
     except Exception as e:
         try:
             cfg.unlink(missing_ok=True)
+        except Exception:
+            pass
+        try:
+            if 'job_out' in locals(): shutil.rmtree(job_out,ignore_errors=True)
         except Exception:
             pass
         processing_meta.unlink(missing_ok=True)
