@@ -47,7 +47,7 @@
 <section data-section="outputs" hidden>
 <div class="card"><h2>Generated Videos & Job Center</h2>
 <p>For privacy, the GitHub dashboard does not directly access your private Google Drive. Import a worker <code>.result.json</code> file to track a completed or failed job here.</p>
-<div class="field"><label>Import result metadata</label><input id="resultImport" type="file" accept=".json,application/json"></div>
+<div class="field"><label>Import result metadata or sanitized status feed</label><input id="resultImport" type="file" accept=".json,application/json"></div><p class="muted">A future HTTPS status feed can be connected without exposing Google Drive credentials. The current dashboard uses local JSON import only.</p>
 <div id="jobStatus" class="job-list"><div class="empty">No job metadata imported yet.</div></div>
 </div></section>
 
