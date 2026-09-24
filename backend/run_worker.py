@@ -9,6 +9,7 @@ REPO=Path("/content/MuseTalk")
 PYTHON="/content/musetalk-env/bin/python"
 Q=ROOT/"jobs/queued"; P=ROOT/"jobs/processing"; C=ROOT/"jobs/completed"; F=ROOT/"jobs/failed"
 LOGS=ROOT/"logs"; OUT=ROOT/"outputs"
+SYNC_SCRIPT=Path("/content/AI-Avatar-Studio/backend/sync_status.py")
 
 def now():
     return datetime.now(timezone.utc).isoformat()
@@ -48,6 +49,11 @@ def validate_output(path):
             "video_codec":v.get("codec_name"),"audio_codec":audio_streams[0].get("codec_name"),
             "audio_sample_rate":audio_streams[0].get("sample_rate"),
             "size_bytes":path.stat().st_size}
+
+def sync_status():
+    if not SYNC_SCRIPT.exists():
+        return
+    subprocess.run([PYTHON,str(SYNC_SCRIPT)],check=False,cwd=SYNC_SCRIPT.parent)
 
 def process_one():
     for d in (Q,P,C,F,LOGS,OUT): d.mkdir(parents=True,exist_ok=True)
@@ -149,6 +155,7 @@ def process_one():
             "log_path":str(log),"job_path":str(completed_job),
             "note":data.get("note","")
         })
+        sync_status()
         print("COMPLETED",run_id)
         print("OUTPUT",output)
 
@@ -168,6 +175,7 @@ def process_one():
             "log_path":str(LOGS/f"{run_id}.log") if (LOGS/f"{run_id}.log").exists() else None,
             "job_path":str(failed)
         })
+        sync_status()
         raise
 
 def main():
