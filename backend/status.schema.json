@@ -1,0 +1,29 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Laxman Avatar Studio Public Status",
+  "type":"object",
+  "required":["schema_version","generated_at","privacy","jobs"],
+  "properties":{
+    "schema_version":{"const":1},
+    "generated_at":{"type":"string"},
+    "privacy":{"type":"object","required":["contains_private_paths","contains_credentials","contains_media"],"properties":{
+      "contains_private_paths":{"const":false},
+      "contains_credentials":{"const":false},
+      "contains_media":{"const":false}
+    }},
+    "jobs":{"type":"array","items":{"type":"object","required":["id","status"],"properties":{
+      "id":{"type":"string"},
+      "status":{"enum":["processing","completed","failed"]},
+      "avatar_id":{"type":["string","null"]},
+      "voice_id":{"type":["string","null"]},
+      "created_at":{"type":["string","null"]},
+      "started_at":{"type":["string","null"]},
+      "completed_at":{"type":["string","null"]},
+      "failed_at":{"type":["string","null"]},
+      "output_name":{"type":["string","null"]},
+      "error_code":{"type":["string","null"]},
+      "media":{"type":"object"}
+    },"additionalProperties":false}}
+  },
+  "additionalProperties":false
+}
