@@ -31,7 +31,9 @@ def preflight():
     r=run([PYTHON,"-c","import torch,mmcv,mmengine,mmdet,mmpose; assert torch.cuda.is_available(); print('GPU:',torch.cuda.get_device_name(0)); print('Torch:',torch.__version__); print('MMCV:',mmcv.__version__)"],check=False)
     if r.returncode:
         raise SystemExit("PREFLIGHT_FAILED Python/CUDA/MMLab verification failed.")
-    run([PYTHON,"/content/MuseTalk/scripts/inference.py","--help"],check=False)
+    r=run([PYTHON,"/content/MuseTalk/scripts/inference.py","--help"],check=False)
+    if r.returncode:
+        raise SystemExit("PREFLIGHT_FAILED MuseTalk inference CLI verification failed.")
     print("PREFLIGHT_READY",flush=True)
 
 def main():
