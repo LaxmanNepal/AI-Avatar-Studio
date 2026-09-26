@@ -13,7 +13,7 @@
     }},
     "jobs":{"type":"array","items":{"type":"object","required":["id","status"],"properties":{
       "id":{"type":"string"},
-      "status":{"enum":["processing","completed","failed"]},
+      "status":{"enum":["queued","processing","completed","failed"]},
       "avatar_id":{"type":["string","null"]},
       "voice_id":{"type":["string","null"]},
       "created_at":{"type":["string","null"]},
