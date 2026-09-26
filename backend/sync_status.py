@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 ROOT=Path("/content/drive/MyDrive/Laxman AI Avatar Studio")
 SYNC=ROOT/"sync"
 OUT=SYNC/"studio-status.json"
-C=ROOT/"jobs/completed"; F=ROOT/"jobs/failed"; P=ROOT/"jobs/processing"
+Q=ROOT/"jobs/queued"; C=ROOT/"jobs/completed"; F=ROOT/"jobs/failed"; P=ROOT/"jobs/processing"
 
 def load(path):
     try:
@@ -38,6 +38,10 @@ def public_result(data):
 def build():
     SYNC.mkdir(parents=True,exist_ok=True)
     items=[]
+    for path in Q.glob("*.json"):
+        data=load(path)
+        if isinstance(data,dict) and data.get("id"):
+            items.append({"id":data["id"],"status":"queued","avatar_id":data.get("avatar_id"),"voice_id":data.get("voice_id"),"created_at":data.get("created_at"),"started_at":None})
     for folder in (C,F):
         for path in folder.glob("*.result.json"):
             item=public_result(load(path))
