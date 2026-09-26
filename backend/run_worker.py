@@ -10,6 +10,8 @@ PYTHON="/content/musetalk-env/bin/python"
 Q=ROOT/"jobs/queued"; P=ROOT/"jobs/processing"; C=ROOT/"jobs/completed"; F=ROOT/"jobs/failed"
 LOGS=ROOT/"logs"; OUT=ROOT/"outputs"
 SYNC_SCRIPT=Path("/content/AI-Avatar-Studio/backend/sync_status.py")
+STALE_AFTER_SECONDS=3600
+WORKER_ID=os.environ.get("LAXMAN_AVATAR_WORKER_ID") or uuid.uuid4().hex[:12]
 
 def now():
     return datetime.now(timezone.utc).isoformat()
@@ -55,8 +57,46 @@ def sync_status():
         return
     subprocess.run([PYTHON,str(SYNC_SCRIPT)],check=False,cwd=SYNC_SCRIPT.parent)
 
+def parse_time(value):
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z","+00:00")).astimezone(timezone.utc)
+    except Exception:
+        return None
+
+def recover_stale_jobs(stale_after_seconds=STALE_AFTER_SECONDS):
+    recovered=0
+    now_dt=datetime.now(timezone.utc)
+    for status_path in sorted(P.glob("*.status.json")):
+        try:
+            data=json.loads(status_path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if data.get("status")!="processing":
+            continue
+        heartbeat=parse_time(data.get("heartbeat_at") or data.get("started_at"))
+        if heartbeat is None or (now_dt-heartbeat).total_seconds() <= stale_after_seconds:
+            continue
+        run_id=str(data.get("id") or status_path.stem.removesuffix(".status"))
+        job_path=P/f"{run_id}.json"
+        if not job_path.exists():
+            status_path.unlink(missing_ok=True)
+            continue
+        queued=Q/job_path.name
+        if not queued.exists():
+            shutil.move(str(job_path),str(queued))
+            (LOGS/f"{run_id}.recovery.log").write_text(now()+"\nRecovered stale processing job; previous_worker="+str(data.get("worker_id"))+"\n",encoding="utf-8")
+            recovered+=1
+            print("RECOVERED_STALE",run_id)
+        status_path.unlink(missing_ok=True)
+    if recovered:
+        sync_status()
+    return recovered
+
 def process_one():
     for d in (Q,P,C,F,LOGS,OUT): d.mkdir(parents=True,exist_ok=True)
+    recover_stale_jobs()
     jobs=sorted(Q.glob("*.json"))
     if not jobs:
         print("QUEUE_EMPTY")
@@ -64,7 +104,7 @@ def process_one():
 
     job=move(jobs[0],P)
     run_id=job.stem
-    processing_meta=P/f"{run_id}.status.json"
+    processing_meta=None
     started=now()
 
     cfg=None
@@ -75,6 +115,7 @@ def process_one():
         if not data.get("id"):
             raise ValueError("Missing job id")
         run_id=data["id"]
+        processing_meta=P/f"{run_id}.status.json"
 
         avatar=Path(data["avatar_path"])
         audio=Path(data["audio_path"])
@@ -85,7 +126,8 @@ def process_one():
 
         write_json(processing_meta,{
             "schema_version":1,"id":run_id,"status":"processing",
-            "created_at":started,"started_at":started,
+            "created_at":started,"started_at":started,"heartbeat_at":started,
+            "worker_id":WORKER_ID,
             "avatar_id":data.get("avatar_id"),"voice_id":data.get("voice_id"),
             "avatar_path":str(avatar),"audio_path":str(audio)
         })
@@ -122,11 +164,23 @@ def process_one():
         ]
 
         with log.open("w",encoding="utf-8") as f:
-            result=subprocess.run(cmd,cwd=REPO,env=env,stdout=f,stderr=subprocess.STDOUT,check=False)
+            proc=subprocess.Popen(cmd,cwd=REPO,env=env,stdout=f,stderr=subprocess.STDOUT)
+            last_heartbeat=time.monotonic()
+            while proc.poll() is None:
+                if time.monotonic()-last_heartbeat >= 30:
+                    try:
+                        status=json.loads(processing_meta.read_text(encoding="utf-8"))
+                        status["heartbeat_at"]=now()
+                        write_json(processing_meta,status)
+                    except Exception:
+                        pass
+                    last_heartbeat=time.monotonic()
+                time.sleep(2)
+            result_returncode=proc.returncode
 
         cfg.unlink(missing_ok=True)
-        if result.returncode!=0:
-            raise RuntimeError(f"MuseTalk inference failed with exit code {result.returncode}. See {log}")
+        if result_returncode!=0:
+            raise RuntimeError(f"MuseTalk inference failed with exit code {result_returncode}. See {log}")
 
         candidates=sorted(job_out.glob("*.mp4"),key=lambda p:p.stat().st_mtime,reverse=True)
         if not candidates:
