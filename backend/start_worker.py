@@ -38,13 +38,18 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--bootstrap",action="store_true",help="Rebuild missing Colab environment before starting")
     ap.add_argument("--poll-seconds",type=int,default=10)
+    ap.add_argument("--once",action="store_true",help="Process one queued job and exit")
     args=ap.parse_args()
     if not REPO.exists():
         raise SystemExit("Repository missing. Run the notebook restore cell first.")
     if args.bootstrap:
         run(["python3.10",str(REPO/"backend/colab_bootstrap.py")])
     preflight()
-    run(["python",str(REPO/"backend/run_worker.py"),"--loop","--poll-seconds",str(max(2,args.poll_seconds))])
+    worker=[ "python",str(REPO/"backend/run_worker.py") ]
+    if args.once:
+        run(worker)
+    else:
+        run(worker+["--loop","--poll-seconds",str(max(2,args.poll_seconds))])
 
 if __name__=="__main__":
     main()
